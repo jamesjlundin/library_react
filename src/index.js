@@ -121,9 +121,13 @@ class SingleBook extends React.Component {
   constructor(props) {
     super(props);
     this.handleChangeReadStatus = this.handleChangeReadStatus.bind(this);
+    this.handleRemoveBook = this.handleRemoveBook.bind(this);
   }
   handleChangeReadStatus(e) {
     this.props.onReadStatusChange(e.target.id);
+  }
+  handleRemoveBook(e) {
+    this.props.onRemoveBook(e.target.id);
   }
   render() {
     const book = this.props.book;
@@ -137,7 +141,11 @@ class SingleBook extends React.Component {
                     onClick={this.handleChangeReadStatus}>{book.hasRead ? 'Read' : 'Not Read'}
                     </button>
                     </td>
-        <td><button className={`removeBook ${book.title.replace(/\s+/g, '')}`}>Remove</button></td>
+        <td><button id={book.title.replace(/\s+/g, '')}
+                    className={`removeBook ${book.title.replace(/\s+/g, '')}`}
+                    onClick={this.handleRemoveBook}>Remove
+                    </button>
+                    </td>
       </tr>
     );
   }
@@ -148,9 +156,13 @@ class DataTable extends React.Component {
   constructor(props) {
     super(props);
     this.passReadStatusChange = this.passReadStatusChange.bind(this);
+    this.passRemoveBook = this.passRemoveBook.bind(this);
   }
   passReadStatusChange(booktitle) {
     this.props.changeReadStatus(booktitle);
+  }
+  passRemoveBook(booktitle) {
+    this.props.removeBook(booktitle);
   }
   render() {
     const rows = [];
@@ -160,7 +172,8 @@ class DataTable extends React.Component {
         <SingleBook
         book={book}
         key={book.title}
-        onReadStatusChange={this.passReadStatusChange} />
+        onReadStatusChange={this.passReadStatusChange}
+        onRemoveBook={this.passRemoveBook} />
       );
     });
     return (
@@ -195,6 +208,7 @@ class Library extends React.Component {
     super(props);
     this.addABook = this.addABook.bind(this);
     this.changeReadStatus = this.changeReadStatus.bind(this);
+    this.removeBook = this.removeBook.bind(this);
     this.state = {
       books: [
         {title: 'The Hobbit', author: 'J.R.R Tolkien', pages: 295, hasRead: false},
@@ -216,6 +230,18 @@ class Library extends React.Component {
       { books: newArray }
     );
   }
+  removeBook(bookTitle) {
+    const thebooks = this.state.books;
+    const newArray = [];
+    thebooks.forEach((book) => {
+      if (book.title.replace(/\s+/g, '') !== bookTitle) {
+        newArray.push(book);
+      }
+    });
+    this.setState(
+      { books: newArray }
+    );
+  }
   addABook(title, author, pages) {
     const newBook = {
       title,
@@ -231,7 +257,9 @@ class Library extends React.Component {
     return (
       <div>
         <TableHeader />
-        <DataTable books={this.state.books} changeReadStatus={this.changeReadStatus}/>
+        <DataTable  books={this.state.books}
+                    changeReadStatus={this.changeReadStatus}
+                    removeBook={this.removeBook}/>
         <AddBooks onSubmitNewBook={this.addABook} />
       </div>
     );
